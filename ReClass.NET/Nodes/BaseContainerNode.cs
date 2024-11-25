@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
@@ -235,7 +235,7 @@ namespace ReClassNET.Nodes
 
 		/// <summary>Adds the specific amount of bytes at the end of the node.</summary>
 		/// <param name="size">The number of bytes to insert.</param>
-		public void AddBytes(int size)
+		public virtual void AddBytes(int size)
 		{
 			List<BaseNode> dummy = null;
 			InsertBytes(nodes.Count, size, ref dummy);

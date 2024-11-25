@@ -294,6 +294,7 @@
     <Compile Include="Nodes\NIntNode.cs" />
     <Compile Include="Nodes\PointerNode.cs" />
     <Compile Include="Nodes\NUIntNode.cs" />
+    <Compile Include="Nodes\SingleBitNode.cs" />
     <Compile Include="Nodes\UnionNode.cs" />
     <Compile Include="Project\CppTypeMapping.cs" />
     <Compile Include="Project\EnumDescription.cs" />

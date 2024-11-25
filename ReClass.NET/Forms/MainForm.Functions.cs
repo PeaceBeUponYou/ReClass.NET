@@ -311,7 +311,8 @@ namespace ReClassNET.Forms
 						var selected = hotSpotsToReplace.Dequeue();
 
 						var node = BaseNode.CreateInstanceFromType(type);
-
+						if (containerPartitions.Container is BitFieldNode && !containerPartitions.Container.CanHandleChildNode(node))
+							break;
 						var createdNodes = new List<BaseNode>();
 						containerPartitions.Container.ReplaceChildNode(selected.Node, node, ref createdNodes);
 

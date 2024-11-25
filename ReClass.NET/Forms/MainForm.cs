@@ -832,12 +832,22 @@ namespace ReClassNET.Forms
 			var parentContainer = node?.GetParentContainer();
 			var nodeIsClass = node is ClassNode;
 			var isContainerNode = node is BaseContainerNode;
+			var isBitsContainer = node?.ParentNode?.GetType() == typeof(BitFieldNode);
 
 			addBytesToolStripDropDownButton.Enabled = parentContainer != null || isContainerNode;
 			insertBytesToolStripDropDownButton.Enabled = selectedNodes.Count == 1 && parentContainer != null && !isContainerNode;
 
-			var enabled = selectedNodes.Count > 0 && !nodeIsClass;
-			toolStrip.Items.OfType<TypeToolStripButton>().ForEach(b => b.Enabled = enabled);
+			var enabled = selectedNodes.Count > 0 && !nodeIsClass && !isBitsContainer;
+			Type sbt = typeof(SingleBitNode);
+			toolStrip.Items.OfType<TypeToolStripButton>().ForEach(b =>
+			{
+				if (b.Value == sbt)
+					b.Enabled = isBitsContainer;
+				else
+					b.Enabled = enabled;
+
+			}
+			);
 		}
 
 		private void memoryViewControl_ChangeClassTypeClick(object sender, NodeClickEventArgs e)
