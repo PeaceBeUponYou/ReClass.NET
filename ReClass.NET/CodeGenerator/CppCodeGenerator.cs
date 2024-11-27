@@ -491,7 +491,7 @@ namespace ReClassNET.CodeGenerator
 						if (doneBits > bitFieldNode.Bits)
 							break;
 					
-						simpleType = GetTypeDefinition(bitFieldNode.source, logger);
+						simpleType = GetTypeDefinition(bitFieldNode.InnerNode, logger);
 						simpleType = simpleType == null ? "bool" : simpleType;
 						writer.Write(simpleType);
 						writer.Write(" ");

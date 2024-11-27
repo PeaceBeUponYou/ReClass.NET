@@ -64,7 +64,10 @@ namespace ReClassNET.Nodes
 
 			return nodes.FindIndex(n => n == node);
 		}
-
+		public void ClearNodes()
+		{
+			nodes.Clear();
+		}
 		/// <summary>
 		/// Checks if the node exists in the container.
 		/// </summary>
