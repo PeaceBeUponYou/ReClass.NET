@@ -258,6 +258,7 @@ namespace ReClassNET.Nodes
 				{
 					if (node is SingleBitNode sbn)
 					{
+						sbn.BitStart = doneBits;
 						doneBits += sbn.BitCount;
 						if (doneBits > Bits)
 							continue;

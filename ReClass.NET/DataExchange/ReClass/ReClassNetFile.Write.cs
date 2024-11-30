@@ -157,6 +157,25 @@ namespace ReClassNET.DataExchange.ReClass
 				case BitFieldNode bitFieldNode:
 				{
 					element.SetAttributeValue(XmlBitsAttribute, bitFieldNode.Bits);
+					if (!buildInTypeToStringMap.TryGetValue(bitFieldNode.InnerNode.GetType(), out var typeString))
+					{
+						logger.Log(LogLevel.Error, $"Skipping node with unknown type: {node.Name}");
+						logger.Log(LogLevel.Warning, node.GetType().ToString());
+
+						return null;
+					}
+					element.SetAttributeValue(XmlInnerTypeAttribute, typeString);
+					foreach(var subnode in bitFieldNode.Nodes)
+					{
+						element.Add(CreateElementFromNode(subnode, logger));
+					}
+					break;
+				}
+				case SingleBitNode singleBitNode:
+				{
+					element.SetAttributeValue(XmlBitStartAttribute, singleBitNode.BitStart);
+					element.SetAttributeValue(XmlBitCountAttribute, singleBitNode.BitCount);
+					element.SetAttributeValue(XmlBitCapAttribute, singleBitNode.BitCap);
 					break;
 				}
 				case FunctionNode functionNode:

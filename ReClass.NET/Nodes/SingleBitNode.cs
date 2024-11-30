@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Globalization;
@@ -48,7 +49,23 @@ namespace ReClassNET.Nodes
 			}
 			x = AddText(context, x, y, context.Settings.NameColor, HotSpot.NoneId, "=") + context.Font.Width;
 
-			var value = context.Memory.ReadUInt64(Offset);
+			ulong value = 0;
+			switch (BitCap / 8)
+			{
+				case 8:
+					value = context.Memory.ReadUInt64(Offset);
+					break;
+				case 4:
+					value = context.Memory.ReadUInt32(Offset);
+					break;
+				case 2:
+					value = context.Memory.ReadUInt16(Offset);
+					break;
+				case 1:
+				default:
+					value = context.Memory.ReadUInt8(Offset);
+					break;
+			}
 			value = MaxBits & (value >> BitStart);
 			x = AddText(context, x, y, context.Settings.ValueColor, 0, value.ToString()) + context.Font.Width;
 			if (bParentIsBoolean)
