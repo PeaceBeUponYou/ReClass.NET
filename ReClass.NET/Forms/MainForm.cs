@@ -103,7 +103,7 @@ namespace ReClassNET.Forms
 
 			GlobalWindowManager.AddWindow(this);
 
-			pluginManager.LoadAllPlugins(Path.Combine(Application.StartupPath, Constants.PluginsFolder), Program.Logger);
+			pluginManager.LoadAllPlugins(PluginManager.PluginsPath, Program.Logger);
 
 			toolStrip.Items.AddRange(NodeTypesBuilder.CreateToolStripButtons(ReplaceSelectedNodesWithType).ToArray());
 			changeTypeToolStripMenuItem.DropDownItems.AddRange(NodeTypesBuilder.CreateToolStripMenuItems(ReplaceSelectedNodesWithType, false).ToArray());
