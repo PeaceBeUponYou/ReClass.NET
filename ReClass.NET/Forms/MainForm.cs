@@ -44,7 +44,7 @@ namespace ReClassNET.Forms
 		public ProjectView ProjectView => projectView;
 
 		public MenuStrip MainMenu => mainMenuStrip;
-
+		public static string PluginsFolder => PluginManager.PluginsPath;
 		public ClassNode CurrentClassNode
 		{
 			get => currentClassNode;
@@ -103,7 +103,7 @@ namespace ReClassNET.Forms
 
 			GlobalWindowManager.AddWindow(this);
 
-			pluginManager.LoadAllPlugins(Path.Combine(Application.StartupPath, Constants.PluginsFolder), Program.Logger);
+			pluginManager.LoadAllPlugins(PluginManager.PluginsPath, Program.Logger);
 
 			toolStrip.Items.AddRange(NodeTypesBuilder.CreateToolStripButtons(ReplaceSelectedNodesWithType).ToArray());
 			changeTypeToolStripMenuItem.DropDownItems.AddRange(NodeTypesBuilder.CreateToolStripMenuItems(ReplaceSelectedNodesWithType, false).ToArray());

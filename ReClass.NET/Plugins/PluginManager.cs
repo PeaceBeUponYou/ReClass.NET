@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Windows.Forms;
 using ReClassNET.CodeGenerator;
 using ReClassNET.Core;
 using ReClassNET.DataExchange.ReClass;
@@ -16,6 +17,7 @@ namespace ReClassNET.Plugins
 {
 	internal sealed class PluginManager
 	{
+		public static string PluginsPath => Path.Combine(Application.StartupPath, Constants.PluginsFolder);
 		private readonly List<PluginInfo> plugins = new List<PluginInfo>();
 
 		private readonly IPluginHost host;
