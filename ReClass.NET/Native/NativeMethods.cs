@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 
@@ -49,7 +49,10 @@ namespace ReClassNET.Native
 
 			return plattformId.Value;
 		}
-
+		internal static INativeMethods Get()
+		{
+			return nativeMethods;
+		}
 		public static IntPtr LoadLibrary(string name)
 		{
 			Contract.Requires(name != null);

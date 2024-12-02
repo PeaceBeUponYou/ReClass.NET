@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+using System.Diagnostics.Contracts;
 using System.Windows.Forms;
 using ReClassNET.Forms;
 using System;

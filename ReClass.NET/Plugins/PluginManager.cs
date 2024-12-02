@@ -96,11 +96,16 @@ namespace ReClassNET.Plugins
 				else
 				{
 					pi.NativeHandle = CreateNativePluginInstance(pi.FilePath);
-
+					if (pi.NativeHandle == null)
+					{
+						throw new Exception($"Failed to load library: { pi.FilePath }");
+					}
 					Program.CoreFunctions.RegisterFunctions(
 						pi.Name,
 						new NativeCoreWrapper(pi.NativeHandle)
 					);
+
+
 				}
 
 				plugins.Add(pi);

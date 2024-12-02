@@ -145,8 +145,6 @@ namespace ReClassNET.Forms
 					UpdatePluginsInfo(pluginManager);
 				}
 			}
-
-
 		}
 
 		private void unloadPlugin_Click(object sender, EventArgs e)
