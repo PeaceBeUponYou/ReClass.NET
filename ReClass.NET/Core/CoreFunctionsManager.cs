@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -51,6 +51,11 @@ namespace ReClassNET.Core
 			Contract.Requires(functions != null);
 
 			functionsRegistry.Add(provider, functions);
+		}
+		public void UnregisterFunctions(string provider)
+		{
+			Contract.Requires(provider != null);
+			functionsRegistry.Remove(provider);
 		}
 
 		public void SetActiveFunctionsProvider(string provider)
