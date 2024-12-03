@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using ReClassNET.Controls;
+using ReClassNET.Extensions;
 using ReClassNET.Memory;
 using ReClassNET.UI;
 
@@ -10,7 +12,8 @@ namespace ReClassNET.Nodes
 	public class VirtualMethodTableNode : BaseContainerNode
 	{
 		private readonly MemoryBuffer memory = new MemoryBuffer();
-
+		private bool bAutoGuess = false;
+		private const int MaxVTableSize = 2000;
 		public override int MemorySize => IntPtr.Size;
 
 		protected override bool ShouldCompensateSizeChanges => false;
@@ -33,9 +36,39 @@ namespace ReClassNET.Nodes
 				AddNode(CreateDefaultNodeForSize(IntPtr.Size));
 			}
 		}
-
+		private void AutoGuessVTableSize(DrawContext context)
+		{
+			if (!Program.RemoteProcess.IsValid)
+				return;
+			bAutoGuess = true;
+			var reader = Program.RemoteProcess;
+			var mainvt = reader.ReadRemoteIntPtr(context.Address);
+			var p = reader.ReadRemoteIntPtr(mainvt);
+			if (p == IntPtr.Zero) return;
+			var module = reader.GetModuleToPointer(p); //Only applicable for precompiled binaries
+			int tableSize = 0;
+			if (module != null)
+			{
+				for (tableSize = 0; tableSize < MaxVTableSize; ++tableSize)
+				{
+					p = reader.ReadRemoteIntPtr(mainvt.Add(new IntPtr( tableSize * IntPtr.Size )));
+					if (reader.GetModuleToPointer(p) != module)
+						break;
+				}
+			}
+			if (tableSize > Nodes.Count)
+			{
+				ClearNodes();
+				for (var i = 0; i < tableSize; ++i)
+				{
+					AddNode(CreateDefaultNodeForSize(IntPtr.Size));
+				}
+			}
+		}
 		public override Size Draw(DrawContext context, int x, int y)
 		{
+			if (!bAutoGuess)
+				AutoGuessVTableSize(context);
 			if (IsHidden && !IsWrapped)
 			{
 				return DrawHidden(context, x, y);

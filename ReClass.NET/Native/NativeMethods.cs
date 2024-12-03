@@ -60,6 +60,14 @@ namespace ReClassNET.Native
 			return nativeMethods.LoadLibrary(name);
 		}
 
+		public static IntPtr LoadLibraryEx(string name, int flags)
+		{
+			Contract.Requires(name != null);
+			Contract.Requires(nativeMethods is NativeMethodsWindows);
+
+			return NativeMethodsWindows.LoadLibraryEx(name, IntPtr.Zero, flags);
+		}
+
 		public static IntPtr GetProcAddress(IntPtr handle, string name)
 		{
 			Contract.Requires(name != null);

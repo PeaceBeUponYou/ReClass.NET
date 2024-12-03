@@ -17,8 +17,11 @@ namespace ReClassNET.Logger
 
 		public void Log(LogLevel level, string message)
 		{
-			var caller = new StackTrace().GetFrame(1).GetMethod();
-			message = $"{message} | {caller.DeclaringType.FullName}.{caller.Name}";
+			if (level == LogLevel.Error)
+			{
+				var caller = new StackTrace().GetFrame(1).GetMethod();
+				message = $"{message} | {caller.DeclaringType.FullName}.{caller.Name}";
+			}
 			Log(level, message, null);
 		}
 

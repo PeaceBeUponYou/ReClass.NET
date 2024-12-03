@@ -11,6 +11,7 @@ using ReClassNET.Util;
 namespace ReClassNET.Nodes
 {
 	public delegate void NodeEventHandler(BaseNode sender);
+	public delegate void NodeToggleHandler(BaseNode sender, bool state);
 
 	[DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
 	[ContractClass(typeof(BaseNodeContract))]
@@ -53,6 +54,7 @@ namespace ReClassNET.Nodes
 
 		public event NodeEventHandler NameChanged;
 		public event NodeEventHandler CommentChanged;
+		public event NodeToggleHandler OnLevelToggled;
 
 		protected GrowingList<bool> LevelsOpen { get; } = new GrowingList<bool>(false);
 
@@ -257,6 +259,7 @@ namespace ReClassNET.Nodes
 		internal void ToggleLevelOpen(int level)
 		{
 			LevelsOpen[level] = !LevelsOpen[level];
+			OnLevelToggled?.Invoke(this, LevelsOpen[level]);
 		}
 
 		/// <summary>Sets the specific level.</summary>

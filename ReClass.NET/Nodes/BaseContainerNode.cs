@@ -67,6 +67,7 @@ namespace ReClassNET.Nodes
 		public void ClearNodes()
 		{
 			nodes.Clear();
+			OnNodesUpdated();
 		}
 		/// <summary>
 		/// Checks if the node exists in the container.

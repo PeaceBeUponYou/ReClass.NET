@@ -2,16 +2,19 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ReClassNET.Controls;
+using ReClassNET.Extensions;
 using ReClassNET.UI;
 
 namespace ReClassNET.Nodes
 {
 	public delegate void ClassCreatedEventHandler(ClassNode node);
-
+	public delegate string AddressFormulaChangeHandler(ClassNode node);
 	public class ClassNode : BaseContainerNode
 	{
 		public static event ClassCreatedEventHandler ClassCreated;
+		public static event AddressFormulaChangeHandler OnAddressChanged;
 
 #if RECLASSNET64
 		public static IntPtr DefaultAddress { get; } = (IntPtr)0x140000000;
@@ -35,7 +38,9 @@ namespace ReClassNET.Nodes
 		{
 			Contract.Ensures(AddressFormula != null);
 
-			LevelsOpen.DefaultValue = true;
+			LevelsOpen.DefaultValue = false;
+
+			OnLevelToggled += OnClassNodeExpanded;
 
 			Uuid = Guid.NewGuid();
 
@@ -44,7 +49,11 @@ namespace ReClassNET.Nodes
 				ClassCreated?.Invoke(this);
 			}
 		}
-
+		public void OnClassNodeExpanded(BaseNode sender, bool status)
+		{
+			if (Nodes.Count == 0)
+				Initialize();
+		}
 		public static ClassNode Create()
 		{
 			Contract.Ensures(Contract.Result<ClassNode>() != null);
@@ -178,6 +187,21 @@ namespace ReClassNET.Nodes
 			if (spot.Id == 0)
 			{
 				AddressFormula = spot.Text;
+				string pattern = @"\[(.*?)\]";
+
+				Match match = Regex.Match(spot.Text, pattern);
+				if (match.Success)
+				{
+					string content = match.Groups[1].Value; //supposed to be address
+					long result = 0;
+					if (!Int64.TryParse(content, System.Globalization.NumberStyles.HexNumber, null, out result))
+						Int64.TryParse(content, out result);
+					if (result != 0)
+					{
+						AddressFormula = Program.RemoteProcess.ReadRemoteInt64(new IntPtr(result)).ToString("X");
+					}
+				}
+				OnAddressChanged?.Invoke(this);
 			}
 		}
 
