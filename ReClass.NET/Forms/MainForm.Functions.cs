@@ -546,7 +546,7 @@ namespace ReClassNET.Forms
 			ClearSelection();
 		}
 
-		private bool IsCycleFree(ClassNode parent, ClassNode node)
+		public bool IsCycleFree(ClassNode parent, ClassNode node)
 		{
 			if (ClassUtil.IsCyclicIfClassIsAccessibleFromParent(parent, node, CurrentProject.Classes))
 			{
