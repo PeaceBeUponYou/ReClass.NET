@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 
 namespace ReClassNET.Nodes
 {
 	public abstract class BaseContainerNode : BaseNode
 	{
 		private readonly List<BaseNode> nodes = new List<BaseNode>();
-
+		public bool bChildNodeChangeAllowed = true;
 		private int updateCount;
 
 		/// <summary>The child nodes of the container.</summary>
@@ -262,7 +263,7 @@ namespace ReClassNET.Nodes
 				throw new ArgumentOutOfRangeException($"The index {index} is not in the range [0, {nodes.Count}].");
 			}
 
-			if (size == 0)
+			if (size <= 0)
 			{
 				return;
 			}
@@ -319,7 +320,16 @@ namespace ReClassNET.Nodes
 
 			OnNodesUpdated();
 		}
+		public void AddNodeUnchecked(BaseNode node)
+		{
+			Contract.Requires(node != null);
 
+			node.ParentNode = this;
+
+			nodes.Add(node);
+
+			OnNodesUpdated();
+		}
 		/// <summary>
 		/// Inserts the node infront of the <paramref name="position"/> node.
 		/// </summary>
@@ -359,9 +369,17 @@ namespace ReClassNET.Nodes
 			return result;
 		}
 
+		public BaseNode GetNodeByOffset(int offset)
+		{
+			return nodes.Where(x => x.Offset == offset).FirstOrDefault();
+		}
+		public IEnumerable<BaseNode> GetNodesByOffset(int offset)
+		{
+			return nodes.Where(x => x.Offset == offset);
+		}
 		/// <summary>Called by a child if it has changed.</summary>
 		/// <param name="child">The child.</param>
-		protected internal virtual void ChildHasChanged(BaseNode child)
+		public virtual void ChildHasChanged(BaseNode child)
 		{
 			// TODO Add BaseNode.GetParentContainer
 		}

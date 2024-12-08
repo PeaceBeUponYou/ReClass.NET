@@ -32,7 +32,7 @@ namespace ReClassNET.Forms
 
 		private ReClassNetProject currentProject;
 		public ReClassNetProject CurrentProject => currentProject;
-
+		public MemoryViewControl MemoryViewControl => memoryViewControl;
 		private ClassNode currentClassNode;
 
 		private readonly MemoryBuffer memoryViewBuffer = new MemoryBuffer();

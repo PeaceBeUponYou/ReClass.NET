@@ -10,7 +10,7 @@ using ReClassNET.Plugins;
 
 namespace ReClassNET.UI
 {
-	internal static class NodeTypesBuilder
+	public static class NodeTypesBuilder
 	{
 		private static readonly List<Type[]> defaultNodeTypeGroupList = new List<Type[]>();
 		private static readonly Dictionary<Plugin, IReadOnlyList<Type>> pluginNodeTypes = new Dictionary<Plugin, IReadOnlyList<Type>>();

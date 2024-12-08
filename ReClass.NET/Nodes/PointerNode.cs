@@ -16,7 +16,7 @@ namespace ReClassNET.Nodes
 
 		public PointerNode()
 		{
-			LevelsOpen.DefaultValue = true;
+			LevelsOpen.DefaultValue = false;
 		}
 
 		public override void Initialize()
@@ -85,7 +85,10 @@ namespace ReClassNET.Nodes
 			{
 				x = AddText(context, x, y, context.Settings.ValueColor, HotSpot.NoneId, "<void>") + context.Font.Width;
 			}
-			x = AddIcon(context, x, y, context.IconProvider.Change, 4, HotSpotType.ChangeWrappedType) + context.Font.Width;
+			if (ShowWrappedTypeChangerIcon)
+			{
+				x = AddIcon(context, x, y, context.IconProvider.Change, 4, HotSpotType.ChangeWrappedType) + context.Font.Width;
+			}
 
 			var ptr = context.Memory.ReadIntPtr(Offset);
 

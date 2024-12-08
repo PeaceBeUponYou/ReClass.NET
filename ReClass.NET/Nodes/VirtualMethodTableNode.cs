@@ -26,7 +26,7 @@ namespace ReClassNET.Nodes
 
 		public override bool CanHandleChildNode(BaseNode node)
 		{
-			return node is VirtualMethodNode;
+			return node is VirtualMethodNode && bChildNodeChangeAllowed;
 		}
 
 		public override void Initialize()

@@ -61,11 +61,20 @@ namespace ReClassNET.Nodes
 
 			LevelsOpen.DefaultValue = true;
 		}
+		public override void Initialize()
+		{
+			if (InnerNode == null)
+			{
+				var boolnode = new BoolNode();
+				boolnode.Initialize();
+				CopyFromNode(boolnode);
+			}
+		}
 
 		public override bool CanHandleChildNode(BaseNode node)
 		{
 			if (node.MemorySize <= InnerNode.MemorySize)
-				return true;
+				return bChildNodeChangeAllowed;
 			return false;
 		}
 		public override void GetUserInterfaceInfo(out string name, out Image icon)
@@ -205,8 +214,9 @@ namespace ReClassNET.Nodes
 
 			AddSelection(context, x, y, context.Font.Height);
 
+			x = AddOpenCloseIcon(context, x, y);
 			x = AddIconPadding(context, x);
-			x = AddIconPadding(context, x);
+			//x = AddIconPadding(context, x);
 			var subx = x;
 
 			x = AddAddressOffset(context, x, y);
@@ -218,7 +228,6 @@ namespace ReClassNET.Nodes
 				x = AddText(context, x, y, context.Settings.NameColor, HotSpot.NameId, Name) + context.Font.Width;
 			}
 
-			x = AddOpenCloseIcon(context, x, y) + context.Font.Width;
 
 			var tx = subx - 3;
 

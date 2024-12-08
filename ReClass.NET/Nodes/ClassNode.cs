@@ -10,6 +10,7 @@ using ReClassNET.UI;
 namespace ReClassNET.Nodes
 {
 	public delegate void ClassCreatedEventHandler(ClassNode node);
+	public delegate bool ClassFirstExpansionEventHandler(ClassNode node);
 	public delegate string AddressFormulaChangeHandler(ClassNode node);
 	public class ClassNode : BaseContainerNode
 	{
@@ -23,9 +24,13 @@ namespace ReClassNET.Nodes
 		public static IntPtr DefaultAddress { get; } = (IntPtr)0x400000;
 		public static string DefaultAddressFormula { get; } = "400000";
 #endif
-
+		public ClassFirstExpansionEventHandler FirstExpansionEventHandler;
+		public string ClassDefinitionName = "class";
+		public bool bShowDefinition = true;
+		public bool CustomConstructionPending = false;
 		public override int MemorySize => Nodes.Sum(n => n.MemorySize);
-
+		public IntPtr AssociatedClass = IntPtr.Zero;
+		public IntPtr CurrenntBaseAddress = IntPtr.Zero;
 		protected override bool ShouldCompensateSizeChanges => true;
 
 		public Guid Uuid { get; set; }
@@ -36,6 +41,7 @@ namespace ReClassNET.Nodes
 
 		internal ClassNode(bool notifyClassCreated)
 		{
+			FirstExpansionEventHandler = null;
 			Contract.Ensures(AddressFormula != null);
 
 			LevelsOpen.DefaultValue = false;
@@ -54,11 +60,15 @@ namespace ReClassNET.Nodes
 			if (Nodes.Count == 0)
 				Initialize();
 		}
-		public static ClassNode Create()
+		public void ForceNotifyClass()
+		{
+			ClassCreated?.Invoke(this);
+		}
+		public static ClassNode Create(bool notify = true)
 		{
 			Contract.Ensures(Contract.Result<ClassNode>() != null);
 
-			return new ClassNode(true);
+			return new ClassNode(notify);
 		}
 
 		public override void GetUserInterfaceInfo(out string name, out Image icon)
@@ -76,7 +86,7 @@ namespace ReClassNET.Nodes
 					return false;
 			}
 
-			return true;
+			return bChildNodeChangeAllowed;
 		}
 
 		public override void Initialize()
@@ -91,24 +101,33 @@ namespace ReClassNET.Nodes
 			var origX = x;
 			var origY = y;
 
-			x = AddOpenCloseIcon(context, x, y);
 
 			var tx = x;
+			if (bShowDefinition)
+			{
+				x = AddOpenCloseIcon(context, x, y);
+				tx = x;
+				x = AddIcon(context, x, y, context.IconProvider.Class, HotSpot.NoneId, HotSpotType.None);
+				x = AddText(context, x, y, context.Settings.OffsetColor, 0, AddressFormula) + context.Font.Width;
 
-			x = AddIcon(context, x, y, context.IconProvider.Class, HotSpot.NoneId, HotSpotType.None);
-			x = AddText(context, x, y, context.Settings.OffsetColor, 0, AddressFormula) + context.Font.Width;
-
-			x = AddText(context, x, y, context.Settings.TypeColor, HotSpot.NoneId, "Class") + context.Font.Width;
-			x = AddText(context, x, y, context.Settings.NameColor, HotSpot.NameId, Name) + context.Font.Width;
-			x = AddText(context, x, y, context.Settings.ValueColor, HotSpot.NoneId, $"[{MemorySize}]") + context.Font.Width;
-			x = AddComment(context, x, y);
-
-			y += context.Font.Height;
-
+				x = AddText(context, x, y, context.Settings.TypeColor, HotSpot.NoneId, "Class") + context.Font.Width;
+				x = AddText(context, x, y, context.Settings.NameColor, HotSpot.NameId, Name) + context.Font.Width;
+				x = AddText(context, x, y, context.Settings.ValueColor, HotSpot.NoneId, $"[{MemorySize}]") + context.Font.Width;
+				x = AddComment(context, x, y);
+				y += context.Font.Height;
+			}
+			
+			CurrenntBaseAddress = context.Address;
 			var size = new Size(x - origX, y - origY);
 
-			if (LevelsOpen[context.Level])
+			if (LevelsOpen[context.Level] || !bShowDefinition)
 			{
+				if (FirstExpansionEventHandler?.Invoke(this) ?? false)
+				{
+					FirstExpansionEventHandler = null;
+					return size;
+				}	
+				FirstExpansionEventHandler = null;
 				var childOffset = tx - origX;
 
 				var innerContext = context.Clone();
@@ -205,7 +224,7 @@ namespace ReClassNET.Nodes
 			}
 		}
 
-		protected internal override void ChildHasChanged(BaseNode child)
+		public override void ChildHasChanged(BaseNode child)
 		{
 			NodesChanged?.Invoke(this);
 		}

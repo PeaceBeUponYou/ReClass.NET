@@ -13,6 +13,7 @@ namespace ReClassNET.DataExchange.ReClass
 {
 	public partial class ReClassNetFile
 	{
+		public static List<ClassNode> DeletedReferencedClasses = new List<ClassNode>(); //For classes that are mistakenly deleted
 		public void Save(string filePath, ILogger logger)
 		{
 			using var fs = new FileStream(filePath, FileMode.Create);
@@ -40,10 +41,24 @@ namespace ReClassNET.DataExchange.ReClass
 					new XElement(XmlClassesElement, CreateClassElements(project.Classes, logger))
 				)
 			);
-
+			while (DeletedReferencedClasses.Count > 0)
+			{
+				foreach (var element in GetDeletedClassesElements(logger).Element(XmlRootElement).Element(XmlClassesElement).Elements())
+					document.Element(XmlRootElement).Element(XmlClassesElement).Add(element);
+			}
 			document.Save(entryStream);
 		}
-
+		private static XDocument GetDeletedClassesElements(ILogger logger)
+		{
+			var newlist = new List<ClassNode>(DeletedReferencedClasses);
+			DeletedReferencedClasses.Clear();
+			var newdoc = new XDocument(
+				new XElement(
+					XmlRootElement,
+					new XElement(XmlClassesElement, CreateClassElements(newlist, logger))
+				));
+			return newdoc;
+		}
 		private static IEnumerable<XElement> CreateEnumElements(IEnumerable<EnumDescription> enums)
 		{
 			return enums.Select(e => new XElement(
@@ -66,7 +81,7 @@ namespace ReClassNET.DataExchange.ReClass
 			Contract.Requires(logger != null);
 			Contract.Ensures(Contract.Result<IEnumerable<XElement>>() != null);
 
-			return classes.Select(c => new XElement(
+			IEnumerable<XElement> elements = classes.Select(c => new XElement(
 				XmlClassElement,
 				new XAttribute(XmlUuidAttribute, c.Uuid),
 				new XAttribute(XmlNameAttribute, c.Name ?? string.Empty),
@@ -74,6 +89,8 @@ namespace ReClassNET.DataExchange.ReClass
 				new XAttribute(XmlAddressAttribute, c.AddressFormula ?? string.Empty),
 				c.Nodes.Select(n => CreateElementFromNode(n, logger)).Where(e => e != null)
 			));
+			
+			return elements;
 		}
 
 		private static XElement CreateElementFromNode(BaseNode node, ILogger logger)
@@ -120,6 +137,10 @@ namespace ReClassNET.DataExchange.ReClass
 				if (node is BaseClassWrapperNode classWrapperNode)
 				{
 					element.SetAttributeValue(XmlReferenceAttribute, ((ClassNode)classWrapperNode.InnerNode).Uuid);
+					//In case if class was mistakenly deleted from project, add it
+					if (!Program.MainForm.CurrentProject.ContainsClass(((ClassNode)classWrapperNode.InnerNode).Uuid))
+						DeletedReferencedClasses.Add(classWrapperNode.InnerNode as ClassNode);
+
 				}
 				else if (wrapperNode.InnerNode != null)
 				{
